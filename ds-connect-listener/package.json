@@ -1,0 +1,15 @@
+{
+  "name": "connect-node-listener-aws",
+  "version": "1.0.0",
+  "description": "Receive notification messages with AWS Lambda and Node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "DocuSign",
+  "repository": "https://github.com/docusign/xxx",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.448.0"
+  }
+}
