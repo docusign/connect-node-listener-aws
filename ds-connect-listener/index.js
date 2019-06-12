@@ -8,7 +8,8 @@
  * BASIC_AUTH_PW
  * HMAC_1 -- the HMAC secret for HMAC signature 1. Can be omitted if HMAC not configured
  * QUEUE_URL
- * QUEUE_REGION -- eg 'us-east-2' 
+ * QUEUE_REGION -- eg 'us-east-2'
+ * MESSAGE_GROUP_ID -- eg 1 
  * 
  * References
  */
@@ -168,7 +169,7 @@ async function enqueue(rawXML, test) {
         // the ContentBasedDeduplication might only look at the 
         // MessageBody (docs aren't clear)
         MessageBody: JSON.stringify({test: test, xml: rawXML}),
-        MessageGroupId: "1",
+        MessageGroupId: process.env['MESSAGE_GROUP_ID'],
         QueueUrl: process.env['QUEUE_URL']
     };
     try {
