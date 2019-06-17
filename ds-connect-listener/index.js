@@ -9,7 +9,7 @@
  * HMAC_1 -- the HMAC secret for HMAC signature 1. Can be omitted if HMAC not configured
  * QUEUE_URL
  * QUEUE_REGION -- eg 'us-east-2'
- * MESSAGE_GROUP_ID -- eg 1 
+ * MESSAGE_GROUP_ID -- eg 1. ONLY set this environment variable for FIFO queues! 
  * 
  * References
  */
@@ -70,9 +70,9 @@ exports.handler = async (event, context) => {
         // Not a test:
         // Step 1. Check the HMAC
         // get the headers
-        const authDigest = req.headers['x-authorization-digest']
-            , accountIdHeader = req.headers['x-docusign-accountid']
-            , hmacSig1 = req.headers['x-docusign-signature-1']
+        const authDigest = event.headers['x-authorization-digest']
+            , accountIdHeader = event.headers['x-docusign-accountid']
+            , hmacSig1 = event.headers['x-docusign-signature-1']
             ;
         hmacPassed = checkHmac(hmac1, rawXML, authDigest, accountIdHeader, hmacSig1)
         if (!hmacPassed) {
@@ -88,8 +88,9 @@ exports.handler = async (event, context) => {
         // Step 2. Store in queue
         let  error = await enqueue (rawXML, test);
         if (error) {
-            // Wait 25 sec and then try again
-            await sleep(25000);
+            debugLog (`Error while enqueuing: ${error}`);
+            // Wait 1.5 sec and then try again
+            await sleep(1500);
             error = await enqueue (rawXML, test);
         }
         if (error) {
@@ -118,34 +119,27 @@ exports.handler = async (event, context) => {
 * @returns {boolean} sigGood: Is the signatures good?
 */
 function checkHmac (key1, rawXML, authDigest, accountIdHeader, hmacSig1) {    
-const authDigestExpected = 'HMACSHA256'
-    , correctDigest = authDigestExpected === authDigest;
-if (!correctDigest) {return false}
+    const authDigestExpected = 'HMACSHA256'
+        , correctDigest = authDigestExpected === authDigest;
+    if (!correctDigest) {return false}
 
-// The key is relative to the account. So if the 
-// same listener is used for Connect notifications from 
-// multiple accounts, use the accountIdHeader to look up
-// the secrets for the specific account.
-//
-// For this example, the key is supplied by the caller
-const sig1good = hmacSig1 === computeHmac(key1, rawXML);
-return sig1good
+    // The key is relative to the account. So if the 
+    // same listener is used for Connect notifications from 
+    // multiple accounts, use the accountIdHeader to look up
+    // the secrets for the specific account.
+    //
+    // For this example, the key is supplied by the caller
+    //
+    // Compute the SHA256 hmac for key1, rawXML
+    const hmac = crypto.createHmac('sha256', key1);
+    hmac.write(rawXML);
+    hmac.end();
+    const computedHmac = hmac.read().toString('base64');
+    
+    // Compare the hmac from the header with the computed value
+    const sig1good = hmacSig1 === computedHmac;
+    return sig1good
 }
-
-/**
-* Compute a SHA256 HMAC on the <content> with the <key>
-* The Base64 representation of the HMAC is then returned 
-* @param {string} key 
-* @param {*} content
-* @returns {string} Base64 encoded SHA256 HMAC 
-*/
-function computeHmac(key, content) {
-const hmac = crypto.createHmac('sha256', key);
-hmac.write(content);
-hmac.end();
-return hmac.read().toString('base64');
-}
-
 
 /**
 * The enqueue function adds the xml to the queue.
@@ -164,14 +158,17 @@ async function enqueue(rawXML, test) {
     // Create SQS service client
     const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
     // Setup the sendMessage parameter object
-    const params = {
+    let params = {
         // We're including the test value in the message body since
         // the ContentBasedDeduplication might only look at the 
         // MessageBody (docs aren't clear)
         MessageBody: JSON.stringify({test: test, xml: rawXML}),
-        MessageGroupId: process.env['MESSAGE_GROUP_ID'],
         QueueUrl: process.env['QUEUE_URL']
     };
+    // Only set the Message Group Id for FIFO queues!
+    const messageGroupId = process.env['MESSAGE_GROUP_ID'];
+    if (messageGroupId) {params.MessageGroupId = messageGroupId};
+
     try {
         await sqs.sendMessage(params).promise();
     }

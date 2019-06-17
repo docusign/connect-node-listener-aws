@@ -18,7 +18,7 @@ else
   exit 1
 fi
 
-echo "nmp installing...";
+echo "npm installing...";
 npm install
 if [ $? -eq 0 ]; then
   echo "done";
