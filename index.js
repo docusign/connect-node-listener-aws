@@ -70,13 +70,16 @@ exports.handler = async (event, context) => {
         // Not a test:
         // Step 1. Check the HMAC
         // get the headers
-        const authDigest = event.headers['x-authorization-digest']
-            , accountIdHeader = event.headers['x-docusign-accountid']
-            , hmacSig1 = event.headers['x-docusign-signature-1']
+        const authDigest = event.headers['X-Authorization-Digest']
+            , accountIdHeader = event.headers['X-DocuSign-AccountId']
+            , hmacSig1 = event.headers['X-DocuSign-Signature-1']
             ;
         hmacPassed = checkHmac(hmac1, rawXML, authDigest, accountIdHeader, hmacSig1)
         if (!hmacPassed) {
-            context.log.error(`${new Date().toUTCString()} HMAC did not pass!!`);
+            console.error(`${new Date().toUTCString()} HMAC did not pass!!`);
+            console.error(`Header values: ${JSON.stringify(event.headers, null, 4)}`);
+            const response = {statusCode: 412, body: `HMAC did not pass!`}
+            return response // EARLY return    
         }
     } else {
         // hmac is not configured or a test message. HMAC is not checked for tests.
@@ -121,7 +124,10 @@ exports.handler = async (event, context) => {
 function checkHmac (key1, rawXML, authDigest, accountIdHeader, hmacSig1) {    
     const authDigestExpected = 'HMACSHA256'
         , correctDigest = authDigestExpected === authDigest;
-    if (!correctDigest) {return false}
+    if (!correctDigest) {
+        console.log(`HMAC test: incorrect digest value--${authDigest}`);
+        return false
+    }
 
     // The key is relative to the account. So if the 
     // same listener is used for Connect notifications from 
@@ -138,6 +144,9 @@ function checkHmac (key1, rawXML, authDigest, accountIdHeader, hmacSig1) {
     
     // Compare the hmac from the header with the computed value
     const sig1good = hmacSig1 === computedHmac;
+    if (!sig1good) {
+        console.log(`HMAC test failed! hmacSig1: ${hmacSig1}; computedHmac: ${computedHmac}`);
+    }
     return sig1good
 }
 
