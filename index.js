@@ -89,8 +89,8 @@ exports.handler = async (event, context) => {
         let  error = await enqueue (rawXML, test);
         if (error) {
             debugLog (`Error while enqueuing: ${error}`);
-            // Wait 1.5 sec and then try again
-            await sleep(1500);
+            // Wait 5 sec and then try again
+            await sleep(5000);
             error = await enqueue (rawXML, test);
         }
         if (error) {

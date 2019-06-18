@@ -2,7 +2,8 @@
 
 #### Summary
 Use this article to create a 
-**Lambda** serverless function.
+**Lambda** serverless function that will receive
+the incoming Connect notifications.
 
 1. In the AWS management console, search
    for and then select **lambda**. See 
@@ -79,7 +80,7 @@ Use this article to create a
    
    Select the **API Gateway** trigger in the designer.
    The designer will then show the 
-   API Gatewy settings, including the **API Endpoint**.
+   API Gatewy settings, including the **API endpoint**.
 
    Record the **API endpoint**, you will use it when you 
    configure DocuSign Connect. See Figure 7.
@@ -98,18 +99,12 @@ Use this article to create a
 
    Replace the existing **index.js** code with the 
    code from this repository's **index.js** file.
-
-   In the Code editor, use **File > New File** to 
-   add the code from this repository's **package.json**
-   file.
-
-   Then use **File > Save As...** to store the new
-   file as **package.json**. See figure 8.
+   See figure 8.
 
    ![add the code to the function](aws.l.08.lambda_create.png)
 
    Figure 8. Select the name of the function and 
-   then use the code editor.
+   then use the code editor. Click **Save** when you're done.
 
 1. Save the updated function design by clicking the **Save**
    button at the top right of the Lambda function's screen.
@@ -136,7 +131,12 @@ Use this article to create a
 
    **QUEUE_REGION:** The SQS queue region. Eg `us-east-2`
  
-   **MESSAGE_GROUP_ID:** Used for FIFO queues. Use `1`
+   If a `Standard` queue is used, do **not** set 
+   the  **MESSAGE_GROUP_ID** environment variable.
+   
+   If a `FIFO` queue is used, the
+   **MESSAGE_GROUP_ID** environment variable **must** be set.
+   Use `1`.
 
    Click **Save** at the top of the page to save your changes.
 
@@ -145,13 +145,30 @@ Use this article to create a
    Figure 9. Add the environment variables and click **Save**
    at the top of the page.
 
+1. Select the name of the Lambda function in the 
+   designer. Look for the **Basic settings** section
+   of the form. It is on the righthand side of the page, below
+   the Environment variables section.
+
+   Update the **Timeout** setting to `15 sec`. This timeout
+   will enable the listener to pause and then retry
+   then enqueuing operation if there is a momentary
+   problem with the SQS queue. See figure 10.
+
+   Remember to click the **Save** button at the top of
+   the page after updating the setting.
+
+   ![update the timeout setting](aws.l.09a.lambda_create.png)
+
+   Figure 10. Set the **Timeout** to 15 seconds.
+
 1. Add an additional IAM permission policy to the 
    function's role.
 
    Your Lambda function will need permission to
    enque messages on to the SQS queue.
 
-   In the following steps we'll add the additional
+   In the following steps you'll add the additional
    permission to the function's role.
 
 1. In the designer, select the function.
@@ -159,11 +176,11 @@ Use this article to create a
    Below the Environment variables pane, in the
    **Execution role** pane, click the link for
    viewing the function's role in the IAM console.
-   See figure 10.
+   See figure 11.
 
    ![update the IAM role](aws.l.10.lambda_create.png)
 
-   Figure 10. Click the link to update the function's
+   Figure 11. Click the link to update the function's
    IAM role.
 
 1. Clicking the link will open an IAM console
@@ -178,20 +195,33 @@ Use this article to create a
    the existing policies for `sqs` and then use the
    checkbox and the **Attach policy** button to add the 
    existing `AmazonSQSFullAccess` policy to the role.
-   See figure 11.
+   See figure 12.
 
    As an alternative, you can create a new policy 
    specific to your SQS queue.
 
    ![add sqs permission](aws.l.11.lambda_create.png)
 
-   Figure 11. Click the checkbox for the
+   Figure 12. Click the checkbox for the
    `AmazonSQSFullAccess` policy and then click the 
    **Attach policy** button to add the policy to the 
    Lambda function's role.
 
-   
+### Next steps
 
+Your listener is now ready to be tested and used.
 
+Recommendation: install the worker application now,
+then use end to end testing for the entire system.
 
+An example worker application is available 
+in repository
+[connect-node-worker-aws](https://github.com/docusign/connect-node-worker-aws)
 
+That worker application is written in Node.js. 
+You can also write worker applications in 
+other languages supported by the AWS SDKs.
+
+The listener application (this repository) and
+the worker application can use different computer 
+languages.

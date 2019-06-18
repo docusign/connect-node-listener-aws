@@ -10,9 +10,9 @@ pull request. Thank you.
 
 ## Contents
 1. AWS account (below)
-1. [Create an SQS queue](docs/INSTALLATION_2_sqs_queue.md)
-1. The remaining detailed installation articles are in development and will
-   be published by June 24.
+1. [Create the SQS queue](docs/INSTALLATION_2_sqs_queue.md)
+1. [Create the Lambda function](docs/INSTALLATION_3_lambda_function.md)
+
 
 ## 1. AWS account
 

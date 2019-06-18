@@ -16,7 +16,7 @@ The repo
 is an example worker application.
 It receives messages from the queue
 and then processes
-them. See the repo for more information.
+them. See that repo for more information.
 
 ## Architecture
 ![Connect listener architecture](docs/connect_listener_architecture.png)
@@ -26,10 +26,15 @@ This application is written in Node.js.
 The example worker app is also written in Node.js but 
 could be written in a different language.
 
+### Presentation
+A [presentation](https://docusigninc.box.com/shared/static/1nv8xcqf01vteyjve8sgwgdko98muk0t.pdf)
+about using AWS as a listener for incoming
+Connect calls is also available.
+
 ## Installation
 
 Short form instructions are below. 
-<!-- [Long form](INSTALLATION.md) instructions are also available. -->
+[Long form](INSTALLATION.md) instructions are also available.
 
 ### Create an AWS SQS queue 
 1. Provision an 
@@ -38,16 +43,17 @@ Short form instructions are below.
 
 1. Record the queue's **AWS Region** and **URL**. 
    They will be used
-   by the listener and by the worker application. 
+   by the listener and by the worker application.
 
-1. If a FIFO queue is used, Content-Based Deduplication must be enabled. 
+1. If a `FIFO` queue is used, Content-Based Deduplication 
+   must be enabled. 
    (Or provide a `MessageDeduplicationId`
    for each queue entry.)
 
 ### Lambda Function
 1. Provision a Lambda function.
 
-   **Runtime**: `Node.js 8.10`
+   **Runtime**: `Node.js 8.x` or `Node.js 10.x`
 
    **Execution role**: `Create a new role with basic Lambda permissions`
 
@@ -63,11 +69,10 @@ Short form instructions are below.
    **Timeout**: Use 15 seconds
 
 1. Update the code content of the Lambda function to
-   use this repo's `index.js` and `package.json` files.
+   use this repo's `index.js` file. A `package.json` 
+   file is not needed.
 
-   You can use the online IDE or a local IDE. The
-   `upload.sh` file in the root of this repository may
-   also be of help for uploading your software to AWS.
+   You can use the online IDE or a local IDE.
 
 1. Set the Environment Variables for your function:
    1. **BASIC_AUTH_NAME**: optional. The Basic Authentication
@@ -79,7 +84,12 @@ Short form instructions are below.
    1. **QUEUE_REGION**: required. 
       The AWS region for your SQS queue. Example: `us-east-2`
    1. **QUEUE_URL**: required. 
-   1. **MESSAGE_GROUP_ID**: required. Suggested value: 1
+   1. If a `Standard` queue is used, do **not** set 
+      the  **MESSAGE_GROUP_ID** environment variable.
+   
+      If a `FIFO` queue is used, the
+      **MESSAGE_GROUP_ID** environment variable **must** be set.
+      Use `1`.
 
 ### Attach SQS policy to the Lambda function’s IAM role
 By default, the Lambda function will not have 
