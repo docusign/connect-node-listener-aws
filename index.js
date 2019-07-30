@@ -161,7 +161,7 @@ function checkHmac (key1, rawXML, authDigest, accountIdHeader, hmacSig1) {
 async function enqueue(rawXML, test) {
     let error = false;
     if (test) {rawXML = ''}
-    if (!test) {test = 0}
+    if (!test) {test = ''} // Always send a string
     // Set the region we will be using
     AWS.config.update({region: process.env['QUEUE_REGION']});
     // Create SQS service client
