@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DocuSignEnvelopeInformation xmlns="http://www.docusign.net/API/3.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <EnvelopeStatus>
+      <RecipientStatuses>
+         <RecipientStatus>
+            <Type>Signer</Type>
+            <Email>larry.kluger@example.com</Email>
+            <UserName>Larry Kluger</UserName>
+            <RoutingOrder>1</RoutingOrder>
+            <Sent>2020-03-28T23:56:33.873</Sent>
+            <DeclineReason xsi:nil="true" />
+            <Status>Sent</Status>
+            <RecipientIPAddress>141.226.162.37</RecipientIPAddress>
+            <ClientUserId>1000</ClientUserId>
+            <CustomFields />
+            <TabStatuses>
+               <TabStatus>
+                  <TabType>SignHere</TabType>
+                  <Status>Signed</Status>
+                  <XPosition>427</XPosition>
+                  <YPosition>321</YPosition>
+                  <TabLabel>Sign Here</TabLabel>
+                  <TabName>SignHere</TabName>
+                  <TabValue />
+                  <DocumentID>3</DocumentID>
+                  <PageNumber>1</PageNumber>
+               </TabStatus>
+            </TabStatuses>
+            <AccountStatus>Active</AccountStatus>
+            <RecipientId>994d45c0-3d06-4174-9d53-70d15683c0e2</RecipientId>
+         </RecipientStatus>
+         <RecipientStatus>
+            <Type>CarbonCopy</Type>
+            <Email>larry.kluger@example.com</Email>
+            <UserName>Larry Kluger</UserName>
+            <RoutingOrder>2</RoutingOrder>
+            <DeclineReason xsi:nil="true" />
+            <Status>Created</Status>
+            <RecipientIPAddress />
+            <CustomFields />
+            <AccountStatus>Active</AccountStatus>
+            <RecipientId>4e569d35-e07b-4917-8458-cad6e3eb9f50</RecipientId>
+         </RecipientStatus>
+      </RecipientStatuses>
+      <TimeGenerated>2020-03-28T23:56:53.9678325</TimeGenerated>
+      <EnvelopeID>08740f95-2187-4b01-9a69-452ae3140752</EnvelopeID>
+      <Subject>Please sign this document</Subject>
+      <UserName>Larry Kluger</UserName>
+      <Email>larry@example.us</Email>
+      <Status>Sent</Status>
+      <Created>2020-03-28T23:56:33.343</Created>
+      <Sent>2020-03-28T23:56:33.89</Sent>
+      <ACStatus>Original</ACStatus>
+      <ACStatusDate>2020-03-28T23:56:33.343</ACStatusDate>
+      <ACHolder>Larry Kluger</ACHolder>
+      <ACHolderEmail>larry@example.us</ACHolderEmail>
+      <ACHolderLocation>DocuSign</ACHolderLocation>
+      <SigningLocation>Online</SigningLocation>
+      <SenderIPAddress>141.226.162.37</SenderIPAddress>
+      <EnvelopePDFHash />
+      <CustomFields>
+         <CustomField>
+            <Name>AccountId</Name>
+            <Show>false</Show>
+            <Required>false</Required>
+            <Value>4197223</Value>
+            <CustomFieldType>Text</CustomFieldType>
+         </CustomField>
+         <CustomField>
+            <Name>AccountName</Name>
+            <Show>false</Show>
+            <Required>false</Required>
+            <Value>World Wide Corp</Value>
+            <CustomFieldType>Text</CustomFieldType>
+         </CustomField>
+         <CustomField>
+            <Name>AccountSite</Name>
+            <Show>false</Show>
+            <Required>false</Required>
+            <Value>demo</Value>
+            <CustomFieldType>Text</CustomFieldType>
+         </CustomField>
+      </CustomFields>
+      <AutoNavigation>true</AutoNavigation>
+      <EnvelopeIdStamping>true</EnvelopeIdStamping>
+      <AuthoritativeCopy>false</AuthoritativeCopy>
+      <DocumentStatuses>
+         <DocumentStatus>
+            <ID>3</ID>
+            <Name>Lorem Ipsum</Name>
+            <TemplateName />
+            <Sequence>1</Sequence>
+         </DocumentStatus>
+      </DocumentStatuses>
+   </EnvelopeStatus>
+   <TimeZone>Pacific Standard Time</TimeZone>
+   <TimeZoneOffset>-7</TimeZoneOffset>
+</DocuSignEnvelopeInformation>

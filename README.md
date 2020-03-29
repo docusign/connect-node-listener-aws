@@ -114,6 +114,13 @@ To send a test message, use the function's URL with
 query parameter `test` set to
 a test value. A GET or POST request can be used. 
 
+### Example notification messages
+
+The following files have been pretty-printed. 
+
+* **webhook_eg_msg_sent.xml** An example envelope sent XML message. 
+* **webhook_eg_msg_completed.xml** An example envelope completed XML message. 
+
 ### Integration testing
 The worker application includes the test tool `runTest.js` 
 
