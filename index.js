@@ -32,7 +32,7 @@ exports.handler = async (event, context) => {
     function checkBasicAuth() {
         const name = process.env['BASIC_AUTH_NAME']
             , pw = process.env['BASIC_AUTH_PW']
-            , authRaw0 = (event.headers && event.headers.Authorization) || ''
+            , authRaw0 = (event.headers && event.headers.Authorization) || (event.headers && event.headers.authorization) || ''
             , authRaw = authRaw0.split(' ')[1]  || ''
             , authString = Buffer.from(authRaw, 'base64').toString()
             , authArray = authString.split(':')
