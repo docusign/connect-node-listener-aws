@@ -93,6 +93,7 @@ To deploy the needed infra using the Serverless framework follow [these instruct
       If a `FIFO` queue is used, the
       **MESSAGE_GROUP_ID** environment variable **must** be set.
       Use `1`.
+   1. **JSON**: optional. If you will be using JSON Connect events (as opposed to XML), set this variable to `true`. Otherwise leave underfined.
 
 ### Attach SQS policy to the Lambda function’s IAM role
 By default, the Lambda function will not have 
