@@ -1,0 +1,36 @@
+service: serverless-simple-http-endpoint
+
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+
+  iam:
+    role:
+      statements: # IAM role statements so that services can be accessed in the AWS account
+        - Effect: 'Allow'
+          Action:
+            - 'sqs:*'
+          Resource: arn:aws:sqs:${env:REGION}:*:*
+
+functions:
+  connect:
+    handler: index.endpoint
+    events:
+      - http:
+          path: ping
+          method: post
+    environment:
+      QUEUE_REGION: ${env:REGION}
+      BASIC_AUTH_NAME: ${env:AUTH_NAME}
+      BASIC_AUTH_PW: ${env:AUTH_PW}
+      HMAC_1: ${env:HMAC}
+      QUEUE_URL: { Ref: NewSQSQueue }
+
+resources:
+  Resources:
+    NewSQSQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: "ConnectQueue"
