@@ -4,7 +4,7 @@ To deploy the infrastructure in your AWS subscription, follow the instructions b
 
 ## Prerequisites
 
-Ensure you have [Serverless Framework](https://www.serverless.com/framework/docs/getting-started/) installed. You will also need to setup your AWS account with Serverless. To do so, please follow the instructions from [Serverless documenation](https://www.serverless.com/framework/docs/providers/aws/guide/credentials/#create-an-iam-user-and-access-key). Be sure to first run `npm i` in current directory first.
+Ensure you have [Serverless Framework](https://www.serverless.com/framework/docs/getting-started/) installed. You will also need to setup your AWS account with Serverless. To do so, please follow the instructions from [Serverless documenation](https://www.serverless.com/framework/docs/providers/aws/guide/credentials/#create-an-iam-user-and-access-key    ).
 
 ## Steps:
  1) Define the following environment variables:

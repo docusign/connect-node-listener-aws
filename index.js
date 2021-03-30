@@ -67,12 +67,6 @@ module.exports.endpoint = async (event, context, callback) => {
         , hmac1 = process.env['HMAC_1']
         , hmacConfigured = hmac1;
 
-    let payload = rawXML;
-
-    if (process.env['JSON']) {
-        payload = JSON.stringify(rawXMl);
-    }
-
     let hmacPassed;
     if (!test && hmacConfigured) {
         // Not a test:
@@ -82,7 +76,7 @@ module.exports.endpoint = async (event, context, callback) => {
             , accountIdHeader = event.headers['X-DocuSign-AccountId']
             , hmacSig1 = event.headers['X-DocuSign-Signature-1']
             ;
-        hmacPassed = checkHmac(hmac1, payload, authDigest, accountIdHeader, hmacSig1)
+        hmacPassed = checkHmac(hmac1, rawXML, authDigest, accountIdHeader, hmacSig1)
         if (!hmacPassed) {
             console.error(`${new Date().toUTCString()} HMAC did not pass!!`);
             console.error(`Header values: ${JSON.stringify(event.headers, null, 4)}`);
@@ -97,12 +91,12 @@ module.exports.endpoint = async (event, context, callback) => {
     let response; 
     if (test || hmacPassed) {
         // Step 2. Store in queue
-        let  error = await enqueue (payload, test);
+        let  error = await enqueue (rawXML, test);
         if (error) {
             debugLog (`Error while enqueuing: ${error}`);
             // Wait 5 sec and then try again
             await sleep(5000);
-            error = await enqueue (payload, test);
+            error = await enqueue (rawXML, test);
         }
         if (error) {
             response = {statusCode: 400, body: `Problem! ${error}`}
@@ -124,13 +118,13 @@ module.exports.endpoint = async (event, context, callback) => {
 /**
 * 
 * @param {string} key1: The HMAC key for signature 1
-* @param {string} payload: the request body of the notification POST 
+* @param {string} rawXML: the request body of the notification POST 
 * @param {string} authDigest: The HMAC signature algorithmn used
 * @param {string} accountIdHeader: The account Id from the header
 * @param {string} hmacSig1: The HMAC Signature number 1
 * @returns {boolean} sigGood: Is the signatures good?
 */
-function checkHmac (key1, payload, authDigest, accountIdHeader, hmacSig1) {    
+function checkHmac (key1, rawXML, authDigest, accountIdHeader, hmacSig1) {    
     const authDigestExpected = 'HMACSHA256'
         , correctDigest = authDigestExpected === authDigest;
     if (!correctDigest) {
@@ -145,9 +139,9 @@ function checkHmac (key1, payload, authDigest, accountIdHeader, hmacSig1) {
     //
     // For this example, the key is supplied by the caller
     //
-    // Compute the SHA256 hmac for key1, payload
+    // Compute the SHA256 hmac for key1, rawXML
     const hmac = crypto.createHmac('sha256', key1);
-    hmac.write(payload);
+    hmac.write(rawXML);
     hmac.end();
     const computedHmac = hmac.read().toString('base64');
     
@@ -160,16 +154,16 @@ function checkHmac (key1, payload, authDigest, accountIdHeader, hmacSig1) {
 }
 
 /**
-* The enqueue function adds the payload to the queue.
+* The enqueue function adds the xml to the queue.
 * If test is true then a test notification is sent. 
 * See https://medium.com/@drwtech/a-node-js-introduction-to-amazon-simple-queue-service-sqs-9c0edf866eca
 * 
-* @param {string} payload 
+* @param {string} rawXML 
 * @param {boolean||integer} test 
 */
-async function enqueue(payload, test) {
+async function enqueue(rawXML, test) {
     let error = false;
-    if (test) {payload = ''}
+    if (test) {rawXML = ''}
     if (!test) {test = ''} // Always send a string
     // Set the region we will be using
     AWS.config.update({region: process.env['QUEUE_REGION']});
@@ -180,7 +174,7 @@ async function enqueue(payload, test) {
         // We're including the test value in the message body since
         // the ContentBasedDeduplication might only look at the 
         // MessageBody (docs aren't clear)
-        MessageBody: JSON.stringify({test: test, payload: payload}),
+        MessageBody: JSON.stringify({test: test, xml: rawXML}),
         QueueUrl: process.env['QUEUE_URL']
     };
     // Only set the Message Group Id for FIFO queues!
