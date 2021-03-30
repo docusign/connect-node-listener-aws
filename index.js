@@ -85,7 +85,7 @@ module.exports.endpoint = async (event, context, callback) => {
         }
     } else {
         // hmac is not configured or a test message. HMAC is not checked for tests.
-        hmacPassed = true
+        hmacPassed = true;
     }
 
     let response; 
