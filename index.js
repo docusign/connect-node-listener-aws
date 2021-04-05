@@ -14,6 +14,8 @@
  * References
  */
 
+'use strict';
+
 const crypto = require('crypto')
     , AWS = require('aws-sdk')
     ;
@@ -24,8 +26,8 @@ const sleep = (milliseconds) => {
     return new Promise(resolve => setTimeout(resolve, milliseconds))
 }
 
-exports.handler = async (event, context) => {
-
+module.exports.endpoint = async (event, context, callback) => {
+  
     const debugLog = msg => {if (debug) {console.log(msg)}};
     const requestId = context.awsRequestId;
 
@@ -83,7 +85,7 @@ exports.handler = async (event, context) => {
         }
     } else {
         // hmac is not configured or a test message. HMAC is not checked for tests.
-        hmacPassed = true
+        hmacPassed = true;
     }
 
     let response; 
@@ -109,7 +111,8 @@ exports.handler = async (event, context) => {
             }
         }
     } 
-    return response;
+
+  callback(null, response);
 };
 
 /**

@@ -36,6 +36,9 @@ Connect calls is also available.
 Short form instructions are below. 
 [Long form](INSTALLATION.md) instructions are also available.
 
+## Infrastructure
+
+To deploy the needed infra using the Serverless framework follow [these instructions](INFRA.md) below. 
 ### Create an AWS SQS queue 
 1. Provision an 
    [SQS](https://aws.amazon.com/sqs/) **Queue**. 
