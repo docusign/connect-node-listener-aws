@@ -68,11 +68,11 @@ module.exports.endpoint = async (event, context, callback) => {
         , hmacConfigured = hmac1;
 
     let body;
-    debugLog(`content-type is ${req.headers['content-type']}`)
+    debugLog(`Content-Type is ${event.headers['Content-Type']}`)
     
-    if (req.headers['content-type'].toString().includes('text/xml')) {
+    if (event.headers['Content-Type'].toString().includes('text/xml')) {
         body = rawBody
-    } else if (req.headers['content-type'].toString().includes('application/json')) {
+    } else if (event.headers['Content-Type'].toString().includes('application/json')) {
         body = JSON.stringify(rawBody)
     }
 
@@ -85,7 +85,7 @@ module.exports.endpoint = async (event, context, callback) => {
             , accountIdHeader = event.headers['X-DocuSign-AccountId']
             , hmacSig1 = event.headers['X-DocuSign-Signature-1']
             ;
-        hmacPassed = checkHmac(hmac1, body, authDigest, accountIdHeader, hmacSig1)
+        hmacPassed = checkHmac(hmac1, rawBody, authDigest, accountIdHeader, hmacSig1)
         if (!hmacPassed) {
             console.error(`${new Date().toUTCString()} HMAC did not pass!!`);
             console.error(`Header values: ${JSON.stringify(event.headers, null, 4)}`);
