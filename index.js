@@ -183,7 +183,7 @@ async function enqueue(rawBody, test) {
         // We're including the test value in the message body since
         // the ContentBasedDeduplication might only look at the 
         // MessageBody (docs aren't clear)
-        MessageBody: JSON.stringify({test: test, xml: rawBody}),
+        MessageBody: JSON.stringify({test: test, payload: rawBody}),
         QueueUrl: process.env['QUEUE_URL']
     };
     // Only set the Message Group Id for FIFO queues!
