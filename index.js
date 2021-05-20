@@ -100,12 +100,12 @@ module.exports.endpoint = async (event, context, callback) => {
     let response; 
     if (test || hmacPassed) {
         // Step 2. Store in queue
-        let  error = await enqueue (body, test);
+        let  error = await enqueue (body, test, event.headers['Content-Type'].toString());
         if (error) {
             debugLog (`Error while enqueuing: ${error}`);
             // Wait 5 sec and then try again
             await sleep(5000);
-            error = await enqueue (body, test);
+            error = await enqueue (body, test, event.headers['Content-Type'].toString());
         }
         if (error) {
             response = {statusCode: 400, body: `Problem! ${error}`}
@@ -169,8 +169,9 @@ function checkHmac (key1, rawBody, authDigest, accountIdHeader, hmacSig1) {
 * 
 * @param {string} rawBody 
 * @param {boolean||integer} test 
+* @param {string} contentType
 */
-async function enqueue(rawBody, test) {
+async function enqueue(rawBody, test, contentType) {
     let error = false;
     if (test) {rawBody = ''}
     if (!test) {test = ''} // Always send a string
@@ -183,7 +184,7 @@ async function enqueue(rawBody, test) {
         // We're including the test value in the message body since
         // the ContentBasedDeduplication might only look at the 
         // MessageBody (docs aren't clear)
-        MessageBody: JSON.stringify({test: test, payload: rawBody}),
+        MessageBody: JSON.stringify({test: test, contentType: contentType , payload: rawBody}),
         QueueUrl: process.env['QUEUE_URL']
     };
     // Only set the Message Group Id for FIFO queues!
