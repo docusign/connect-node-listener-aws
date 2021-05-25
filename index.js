@@ -63,9 +63,18 @@ module.exports.endpoint = async (event, context, callback) => {
     // Check HMAC and enqueue. Allow for test messages
     const test = (event.queryStringParameters && event.queryStringParameters.test) ? 
                     event.queryStringParameters.test : false
-        , rawXML = event.body
+        , rawBody = event.body
         , hmac1 = process.env['HMAC_1']
         , hmacConfigured = hmac1;
+
+    let body;
+    debugLog(`Content-Type is ${event.headers['Content-Type']}`)
+    
+    if (event.headers['Content-Type'].toString().includes('text/xml')) {
+        body = rawBody
+    } else if (event.headers['Content-Type'].toString().includes('application/json')) {
+        body = JSON.stringify(rawBody)
+    }
 
     let hmacPassed;
     if (!test && hmacConfigured) {
@@ -76,7 +85,7 @@ module.exports.endpoint = async (event, context, callback) => {
             , accountIdHeader = event.headers['X-DocuSign-AccountId']
             , hmacSig1 = event.headers['X-DocuSign-Signature-1']
             ;
-        hmacPassed = checkHmac(hmac1, rawXML, authDigest, accountIdHeader, hmacSig1)
+        hmacPassed = checkHmac(hmac1, rawBody, authDigest, accountIdHeader, hmacSig1)
         if (!hmacPassed) {
             console.error(`${new Date().toUTCString()} HMAC did not pass!!`);
             console.error(`Header values: ${JSON.stringify(event.headers, null, 4)}`);
@@ -91,12 +100,12 @@ module.exports.endpoint = async (event, context, callback) => {
     let response; 
     if (test || hmacPassed) {
         // Step 2. Store in queue
-        let  error = await enqueue (rawXML, test);
+        let  error = await enqueue (body, test, event.headers['Content-Type'].toString());
         if (error) {
             debugLog (`Error while enqueuing: ${error}`);
             // Wait 5 sec and then try again
             await sleep(5000);
-            error = await enqueue (rawXML, test);
+            error = await enqueue (body, test, event.headers['Content-Type'].toString());
         }
         if (error) {
             response = {statusCode: 400, body: `Problem! ${error}`}
@@ -118,13 +127,13 @@ module.exports.endpoint = async (event, context, callback) => {
 /**
 * 
 * @param {string} key1: The HMAC key for signature 1
-* @param {string} rawXML: the request body of the notification POST 
+* @param {string} rawBody: the request body of the notification POST 
 * @param {string} authDigest: The HMAC signature algorithmn used
 * @param {string} accountIdHeader: The account Id from the header
 * @param {string} hmacSig1: The HMAC Signature number 1
 * @returns {boolean} sigGood: Is the signatures good?
 */
-function checkHmac (key1, rawXML, authDigest, accountIdHeader, hmacSig1) {    
+function checkHmac (key1, rawBody, authDigest, accountIdHeader, hmacSig1) {    
     const authDigestExpected = 'HMACSHA256'
         , correctDigest = authDigestExpected === authDigest;
     if (!correctDigest) {
@@ -139,9 +148,9 @@ function checkHmac (key1, rawXML, authDigest, accountIdHeader, hmacSig1) {
     //
     // For this example, the key is supplied by the caller
     //
-    // Compute the SHA256 hmac for key1, rawXML
+    // Compute the SHA256 hmac for key1, rawBody
     const hmac = crypto.createHmac('sha256', key1);
-    hmac.write(rawXML);
+    hmac.write(rawBody);
     hmac.end();
     const computedHmac = hmac.read().toString('base64');
     
@@ -158,12 +167,13 @@ function checkHmac (key1, rawXML, authDigest, accountIdHeader, hmacSig1) {
 * If test is true then a test notification is sent. 
 * See https://medium.com/@drwtech/a-node-js-introduction-to-amazon-simple-queue-service-sqs-9c0edf866eca
 * 
-* @param {string} rawXML 
+* @param {string} rawBody 
 * @param {boolean||integer} test 
+* @param {string} contentType
 */
-async function enqueue(rawXML, test) {
+async function enqueue(rawBody, test, contentType) {
     let error = false;
-    if (test) {rawXML = ''}
+    if (test) {rawBody = ''}
     if (!test) {test = ''} // Always send a string
     // Set the region we will be using
     AWS.config.update({region: process.env['QUEUE_REGION']});
@@ -174,7 +184,7 @@ async function enqueue(rawXML, test) {
         // We're including the test value in the message body since
         // the ContentBasedDeduplication might only look at the 
         // MessageBody (docs aren't clear)
-        MessageBody: JSON.stringify({test: test, xml: rawXML}),
+        MessageBody: JSON.stringify({test: test, contentType: contentType , payload: rawBody}),
         QueueUrl: process.env['QUEUE_URL']
     };
     // Only set the Message Group Id for FIFO queues!
