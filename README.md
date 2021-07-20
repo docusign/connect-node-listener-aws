@@ -67,7 +67,7 @@ To deploy the needed infra using the Serverless framework follow [these instruct
 
    **Settings for the Lambda function:**
 
-   **Handler**: `index.handler`
+   **Handler**: `index.endpoint`
 
    **Timeout**: Use 15 seconds
 
